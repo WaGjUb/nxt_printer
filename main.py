@@ -14,6 +14,10 @@ PRINT_SPEED = 50
 MIN_MOVE = 15
 X_BOUND = 1300
 Y_BOUND = 1600
+X_POSITIVE = 1
+Y_POSITIVE = -1
+X_NEGATIVE = -1
+Y_NEGATIVE = 1
 
 def initialize(brick, paper, rail, rgb, touch, pen):
 	t1 = threading.Thread(target=init_paper, args=(paper, rgb))
@@ -25,13 +29,11 @@ def initialize(brick, paper, rail, rgb, touch, pen):
 	#stop to force motor
 	pen.weak_turn(0,0)
 	pen.reset_position(0)
-
 	try:
 		t1.start()
 		t2.start()
 	except Exception as e:
 		print(e)
-		
 	t1.join()
 	t2.join()
 
@@ -73,7 +75,12 @@ class print_file(object):
 		self.x_pos = 0
 		self.y_pos = Y_BOUND
 		initialize(self.brick, self.paper, self.rail, self.rgb, self.touch, self.pen)
-		self.t_draw_square()
+		'''self.set_position(650, 800)
+		self.set_position(0, 0)
+		self.set_position(0, Y_BOUND )
+		self.set_position(300, 300)
+		self.set_position(650, 800)'''
+		self.draw_square()
 
 	def can_move(self, x=0, y=0):
 		if ((self.x_pos + x < X_BOUND) and (self.y_pos + Y_BOUND)):
@@ -81,14 +88,31 @@ class print_file(object):
 		else:
 			return False
 
-	def set_position(x, y):
+	def set_position(self, x, y):
+		to_move_x = x - self.x_pos
+		to_move_y = y - self.y_pos
 		
-		
+		# move to negative way
+		if to_move_x < 0:
+			self.move(X_NEGATIVE, abs(to_move_x), self.rail)	
+		#move to positive way
+		else:
+			self.move(X_POSITIVE, abs(to_move_x), self.rail)	
+			
+		# move to negative way
+		if to_move_y < 0:
+			self.move(Y_NEGATIVE, abs(to_move_y), self.paper)	
+		#move to positive way
+		else:
+			self.move(Y_POSITIVE, abs(to_move_y), self.paper)	
 
 	def move(self, direction, size, motor):
 		motor.reset_position(0)
 		if motor == self.paper:
 			self.y_pos -= size*direction
+		elif motor == self.rail:
+			self.x_pos -= size*-direction
+		
 		while size > 30:
 			#TODO verificar se pode mexer
 			motor.turn(PRINT_SPEED*direction, size)
@@ -121,21 +145,12 @@ class print_file(object):
 	def draw_square(self):
 		print("sobe caneta")
 		self.up_pen()
-		print("movendo trilho")
-		self.move(1, 300, self.rail)
-		print("movendo papel")
-		self.move(1, 600, self.paper)
-		print("desce caneta")
+		self.set_position(600, 600)
 		self.down_pen()
-		print("movendo trilho")
-		self.move(1, 300, self.rail)
-		print("movendo papel")
-		self.move(1, 300, self.paper)
-		print("movendo trilho")
-		self.move(-1, 300, self.rail)
-		print("movendo papel")
-		self.move(-1, 300, self.paper)
-		print("sobe caneta")
+		self.set_position(600, 900)
+		self.set_position(900, 900)
+		self.set_position(900, 600)
+		self.set_position(600, 600)
 		self.up_pen()
 		
 	def t_draw_square(self):
