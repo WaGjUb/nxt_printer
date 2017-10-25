@@ -8,9 +8,9 @@ RAIL = nxt.PORT_B
 PEN = nxt.PORT_C
 TOUCH = nxt.PORT_1
 RGB = nxt.PORT_3
-MOVE_PEN = 32
+MOVE_PEN = 30
 SPEED_PEN = 5
-PRINT_SPEED = 50
+PRINT_SPEED = 40
 MIN_MOVE = 15
 X_BOUND = 1300
 Y_BOUND = 1600
@@ -80,7 +80,8 @@ class print_file(object):
 		self.set_position(0, Y_BOUND )
 		self.set_position(300, 300)
 		self.set_position(650, 800)'''
-		self.draw_square()
+	#	self.draw_square()
+		self.draw_utf()
 
 	def can_move(self, x=0, y=0):
 		if ((self.x_pos + x < X_BOUND) and (self.y_pos + Y_BOUND)):
@@ -186,6 +187,37 @@ class print_file(object):
 		print("sobe caneta")
 		self.up_pen()
 
+
+	def draw_utf(self):
+		#draw U 
+		self.set_position(100,900)
+		self.down_pen()
+		self.set_position(100,600)
+		self.set_position(300,600)
+		self.set_position(300,900)
+		self.up_pen()
+
+		#draw T
+		self.set_position(450,900)
+		self.down_pen()
+		self.set_position(650,900)
+		self.up_pen()
+		self.set_position(550,900)
+		self.down_pen()
+		self.set_position(550,600)
+		self.up_pen()
+		
+		#draw F
+		self.set_position(800,600)
+		self.down_pen()
+		self.set_position(800,900)
+		self.set_position(1000,900)
+		self.up_pen()
+		self.set_position(1000,800)
+		self.down_pen()
+		self.set_position(800,800)
+		self.up_pen()
+		
 
 print_file("daniel")
 #print_file.draw_square()
