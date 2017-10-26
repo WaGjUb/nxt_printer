@@ -23,7 +23,6 @@ function crop(){
 	    -crop \
 	    "${facePos[3]}x${facePos[2]}+${facePos[0]}+${facePos[1]}" \
 	    $bmpFile
-    
     convert -colorspace GRAY $bmpFile $tempFile
     convert -gaussian-blur 5x5 $tempFile $tempFile
     convert -threshold 26500 $tempFile $bmpFile
@@ -33,13 +32,13 @@ function trace(){
     potrace --svg -z white -u 2 -a 0 -O 100 -t 100 --flat $bmpFile -o $svgFile
 }
 
-function svg2text(){
-    cat $svgFile | \
+function svg2text(entrada, out){
+    cat $entrada | \
 	tr -d '\n' | \
 	awk 'BEGIN{RS=">"} /^.*<path d=".*/{print $0} ' | \
 	tr -d '<pathd="/' | \
 	awk 'BEGIN{FS="z"}{for (i=0; i<NF; i++) print $i}' \
-	    > $outfile
+	    > $out
 }
 
 main(){
@@ -72,4 +71,5 @@ main(){
     cat $outfile
 }
 
-main
+#main
+export svg2text

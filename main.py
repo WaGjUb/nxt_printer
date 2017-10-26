@@ -11,7 +11,7 @@ RGB = nxt.PORT_3
 MOVE_PEN = 30
 SPEED_PEN = 5
 PRINT_SPEED = 40
-MIN_MOVE = 15
+MIN_MOVE = 20
 X_BOUND = 1300
 Y_BOUND = 1600
 X_POSITIVE = 1
@@ -23,7 +23,7 @@ def initialize(brick, paper, rail, rgb, touch, pen):
 	t1 = threading.Thread(target=init_paper, args=(paper, rgb))
 	t2 = threading.Thread(target=init_rail, args=(rail, touch))
 	try:
-		pen.turn(MAX_SPEED/5, 30)
+		pen.turn(MAX_SPEED/5, MOVE_PEN)
 	except Exception as e:
 		print(e)
 	#stop to force motor
@@ -58,8 +58,7 @@ def init_rail(r_motor, t_sensor):
 		
 class print_file(object):
  	# img is an group of coordinates to draw
-	def __init__(self, img):
-		self.img = img
+	def __init__(self):
 		# get NXT USB information
 		self.brick = nxt.locator.find_one_brick()
 		# define motors
@@ -75,13 +74,31 @@ class print_file(object):
 		self.x_pos = 0
 		self.y_pos = Y_BOUND
 		initialize(self.brick, self.paper, self.rail, self.rgb, self.touch, self.pen)
-		'''self.set_position(650, 800)
-		self.set_position(0, 0)
-		self.set_position(0, Y_BOUND )
-		self.set_position(300, 300)
-		self.set_position(650, 800)'''
 	#	self.draw_square()
-		self.draw_utf()
+		#self.draw_utf()
+
+	def draw_file(self):
+		f = open("logo.utf", 'r')
+		thread = False
+		for l in f:
+			l = l.strip().split(' ')
+			print l	
+			if len(l) == 1:
+				l = l[0]
+				if l == "M":
+					self.up_pen()
+				elif l == "L":
+					self.down_pen()
+				elif l == "T":
+					thread = True
+			elif len(l) == 2:
+				if thread:
+					self.set_position(int(float(l[0])), int(float(l[1])))#, True)
+					thread = False
+				else:
+					self.set_position(int(float(l[0])), int(float(l[1])))
+					
+		
 
 	def can_move(self, x=0, y=0):
 		if ((self.x_pos + x < X_BOUND) and (self.y_pos + Y_BOUND)):
@@ -89,23 +106,44 @@ class print_file(object):
 		else:
 			return False
 
-	def set_position(self, x, y):
+	def set_position(self, x, y, thread=False):
 		to_move_x = x - self.x_pos
 		to_move_y = y - self.y_pos
+		t1 = None
+		t2 = None
+		threading.Thread(target=self.move, args=(1, 300,self.rail))
+		if thread:	
+			# move to negative way
+			if to_move_x < 0:
+				t1 = threading.Thread(target=self.move, args=(X_NEGATIVE, abs(to_move_x), self.rail))
+			#move to positive way
+			else:
+				t1 = threading.Thread(target=self.move, args=(X_POSITIVE, abs(to_move_x), self.rail))
+			# move to negative way
+			if to_move_y < 0:
+				t2 = threading.Thread(target=self.move, args=(Y_NEGATIVE, abs(to_move_y), self.paper))
+			#move to positive way
+			else:
+				t2 = threading.Thread(target=self.move, args=(Y_POSITIVE, abs(to_move_y), self.paper))
 		
-		# move to negative way
-		if to_move_x < 0:
-			self.move(X_NEGATIVE, abs(to_move_x), self.rail)	
-		#move to positive way
+			t1.start()
+			t2.start()
+			t1.join()
+			t2.join()
 		else:
-			self.move(X_POSITIVE, abs(to_move_x), self.rail)	
-			
-		# move to negative way
-		if to_move_y < 0:
-			self.move(Y_NEGATIVE, abs(to_move_y), self.paper)	
-		#move to positive way
-		else:
-			self.move(Y_POSITIVE, abs(to_move_y), self.paper)	
+			# move to negative way
+			if to_move_x < 0:
+				self.move(X_NEGATIVE, abs(to_move_x), self.rail)	
+			#move to positive way
+			else:
+				self.move(X_POSITIVE, abs(to_move_x), self.rail)	
+				
+			# move to negative way
+			if to_move_y < 0:
+				self.move(Y_NEGATIVE, abs(to_move_y), self.paper)	
+			#move to positive way
+			else:
+				self.move(Y_POSITIVE, abs(to_move_y), self.paper)	
 
 	def move(self, direction, size, motor):
 		motor.reset_position(0)
@@ -139,8 +177,11 @@ class print_file(object):
 		
 	def up_pen(self):
 		if self.pen_is_down:
-			self.pen.turn(SPEED_PEN, MOVE_PEN)
-			self.pen.weak_turn(0,0)
+			try:
+				self.pen.turn(SPEED_PEN, MOVE_PEN+40)
+			except Exception as e:
+				print(e)
+			self.pen.turn(1,0)
 			self.pen_is_down = False
 
 	def draw_square(self):
@@ -218,6 +259,29 @@ class print_file(object):
 		self.set_position(800,800)
 		self.up_pen()
 		
+	def draw_logo(self):
+		#print U and T
+		self.set_position(265,1135)
+		self.down_pen()
+		self.set_position(265,870)
+		self.set_position(470,870)
+		self.set_position(470,1090)
+		self.set_position(530,1090)
+		self.set_position(530,870)
+		self.set_position(580,870)
+		self.set_position(580,1090)
+		self.set_position(785,1090)
+		self.set_position(785,1135)
+		self.set_position(420,1135)
+		self.set_position(420,910)
+		self.set_position(315,910)
+		self.set_position(315,1135)
+		self.set_position(265,1135)
+		self.up_pen()
 
-print_file("daniel")
+p =	print_file()
+try:	
+	p.draw_file()	
+except KeyboardInterrupt as e:
+	p.up_pen()
 #print_file.draw_square()
