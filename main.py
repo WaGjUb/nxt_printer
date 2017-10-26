@@ -8,7 +8,8 @@ RAIL = nxt.PORT_B
 PEN = nxt.PORT_C
 TOUCH = nxt.PORT_1
 RGB = nxt.PORT_3
-MOVE_PEN = 30
+MOVE_PEN = 53
+ERROR = 4
 SPEED_PEN = 5
 PRINT_SPEED = 40
 MIN_MOVE = 20
@@ -78,7 +79,7 @@ class print_file(object):
 		#self.draw_utf()
 
 	def draw_file(self):
-		f = open("logo.utf", 'r')
+		f = open("without2.utf", 'r')
 		thread = False
 		for l in f:
 			l = l.strip().split(' ')
@@ -172,16 +173,30 @@ class print_file(object):
 
 	def down_pen(self):
 		if not self.pen_is_down:
-			self.pen.turn(-SPEED_PEN, MOVE_PEN)
+			try:
+				self.pen.turn(-SPEED_PEN, MOVE_PEN)
+			except:
+				pass
 			self.pen_is_down = True
-		
+			#while True:
+			#	self.pen.turn(-SPEED_PEN, MOVE_PEN)
+			#	walked = abs(self.pen.get_tacho().rotation_count)
+			#	print (walked)
+			#	self.pen_is_down = True
+			#	if walked >= MOVE_PEN and walked < MOVE_PEN + ERROR:
+			#		break
+			#	else:
+			#		self.up_pen()
+
+
 	def up_pen(self):
 		if self.pen_is_down:
 			try:
-				self.pen.turn(SPEED_PEN, MOVE_PEN+40)
+				self.pen.turn(SPEED_PEN, MOVE_PEN+100)
 			except Exception as e:
 				print(e)
-			self.pen.turn(1,0)
+				self.pen.reset_position(0)
+			self.pen.weak_turn(0,0)
 			self.pen_is_down = False
 
 	def draw_square(self):
