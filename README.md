@@ -1,4 +1,4 @@
-#It is an driver to a LEGO NXT printer written in python!
+#It is an driver to a LEGO NXT printer written in python!#
 
 The model of printer is the same of in this video: https://www.youtube.com/watch?v=tNp62EfaJ60  
 
@@ -9,5 +9,4 @@ The model of printer is the same of in this video: https://www.youtube.com/watch
 
 the vitorio.tar is an branch that was made to work only with svg files. It was not finished but may work with simple images.
 
-**if you need some help please send me a mail in danielcostavalerio@gmail.com
-
+**if you need some help please send me a mail in danielcostavalerio@gmail.com**
